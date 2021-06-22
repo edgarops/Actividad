@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+<head>
+  <title>Actividad 3 Input</title>
+  <style type="text/css">
+    body {
+      background: #222;
+    }
+    .layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="spaces" class="layer"></canvas>
+  <canvas id="cards" class="layer"></canvas>
+  
+  <canvas id="drag" class="layer"></canvas>
+
+  <img id="image" style="display:none;"  src="image/Actividad3Input/email.png" />
+  <img id="image2" style="display:none;"  src="image/Actividad3Input/search.png" />
+  <img id="image3" style="display:none;"  src="image/Actividad3Input/url.png" />
+  <img id="image3" style="display:none;"  src="image/Actividad3Input/color.png" />
+  <img id="image3" style="display:none;"  src="image/Actividad3Input/submint.png" />
+  <img id="image3" style="display:none;"  src="image/Actividad3Input/tel.png" />
+  <img id="image3" style="display:none;"  src="image/Actividad3Input/text.png" />
+  
+  <img id="image4" style="width: 300px; padding-top: 600px; padding-left: 20px;"  src="image/Actividad3Input/input1.png" />
+  <img id="image4" style="width: 300px; padding-top: 600px; padding-left: 300px;"  src="image/Actividad3Input/input2.png" />
+  
+
+  
+
+  <script>
+    /*var CARD_WIDTH1 = 600;
+    var CARD_HEIGHT1 = 170;*/
+    
+    var CARD_WIDTH = 300;
+    var CARD_HEIGHT = 140;
+
+   /*var CARD_WIDTH2 = 200;
+    var CARD_HEIGHT2 = 170;*/
+    
+    /*var img = new Image()
+      img.src = 'html.png' */
+
+    var img2 = new Image()
+      img2.src = 'image/Actividad3Input/email.png'
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    var canvases = {
+      spaces: byId('spaces'),
+      drag: byId('drag'),
+      cards: byId('cards'),
+    };
+
+    var context = {
+      spaces: canvases.spaces.getContext('2d'),
+      drag: canvases.drag.getContext('2d'),
+      cards: canvases.cards.getContext('2d'),
+      
+    };
+    var state1 = {
+      spaces: [
+        
+        {x: 329, y: 605, card: null},
+       
+        
+        /*  
+        {x: 30, y: 420, card: null},
+        {x: 430, y: 420, card: null},
+        {x: 830, y: 420, card: null},  
+         
+
+        {x: 30, y: 590, card: null},
+        {x: 430, y: 590, card: null},
+        {x: 830, y: 590, card: null},  
+
+        {x: 30, y: 760, card: null},
+        {x: 430, y: 760, card: null},
+        {x: 830, y: 760, card: null},*/
+        
+      ],
+      cards: [],
+      //cards2: [],
+      holdingCard: null,
+      isMouseDown: false,
+      cursorOffset: null
+    };
+    var state = {
+      spaces: [
+      {x: 329, y: 605, card: null},
+        
+      ],
+      cards: [],
+      //cards2: [],
+      holdingCard: null,
+      isMouseDown: false,
+      cursorOffset: null
+    };
+    
+    function drawSpace1(space) {
+      var ctx = context.spaces;
+
+      ctx.fillStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#999999';
+      ctx.fillRect(space.x, space.y, CARD_WIDTH, CARD_HEIGHT);
+      ctx.strokeRect(space.x, space.y, CARD_WIDTH, CARD_HEIGHT);
+    }
+    function drawSpace(space) {
+      var ctx = context.spaces;
+
+      ctx.fillStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#999999';
+      ctx.fillRect(space.x, space.y, CARD_WIDTH, CARD_HEIGHT);
+      ctx.strokeRect(space.x, space.y, CARD_WIDTH, CARD_HEIGHT);
+    }
+    
+    
+
+    function drawSpaces() {
+      
+      /*state.spaces.forEach(function(space) {
+        drawSpace(space);
+      });*/
+      
+      state1.spaces.forEach(function(space) {
+        drawSpace1(space);
+      });
+      /*state2.spaces2.forEach(function(space) {
+        drawSpace2(space);
+      });*/
+    }
+
+    function drawCard(card, ctx) {
+      //var img =document.getElementById("myImg");
+      //var img = new Image()
+      //img.src = 'html.png' //Source of an image.
+      //ctx.drawImage(img, card.x, card.y, CARD_WIDTH, CARD_HEIGHT);
+      //ctx.fillStyle = 'white';
+      //ctx.strokeStyle = '#999999';
+      //ctx.strokeText = 'Queeee';
+      //ctx.drawImage(img, card.x, card.y, CARD_WIDTH, CARD_HEIGHT);
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = '#999999';
+      //ctx.fillRect(card.x, card.y, CARD_WIDTH, CARD_HEIGHT);
+      ctx.drawImage(card.image, card.x, card.y, CARD_WIDTH, CARD_HEIGHT);
+    }
+    
+
+    function drawCards() {
+      context.cards.clearRect(
+        0, 0,
+        canvases.cards.width,
+        canvases.cards.height
+      );
+
+      state.cards.forEach(function(card) {
+        if (card !== state.holdingCard) {
+          drawCard(card, context.cards);
+          
+        }
+      });
+    }
+
+    drawSpace({
+      x: 100,
+      y: 200
+    });
+
+    window.onresize = function() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+
+      for (var key in canvases) {
+        canvases[key].width = w;
+        canvases[key].height = h;
+      }
+    }
+
+    canvases.drag.onmousedown = function(e) {
+      var card;
+
+      state.isMouseDown = true;
+
+      for (var index = 0; index < state.cards.length; index++) {
+        card = state.cards[index];
+        
+
+        if (e.clientX >= card.x && e.clientX < CARD_WIDTH + card.x
+          && e.clientY >= card.y && e.clientY < CARD_HEIGHT + card.y)
+        {
+          state.holdingCard = card;
+          state.cursorOffset = {
+            x: e.clientX - card.x,
+            y: e.clientY - card.y,
+            
+          };
+          
+
+          drawCards();
+         
+          context.drag.clearRect(0, 0,
+            canvases.drag.width,
+            canvases.drag.height,
+          );
+          
+          drawCard(state.holdingCard, context.drag);
+          
+          break;
+        }
+      }
+    };
+
+    canvases.drag.onmouseup = function() {
+      state.isMouseDown = false;
+
+      var didMatch = false;
+
+      if (state.cursorOffset != null) {
+        var card = state.holdingCard;
+
+        state.cursorOffset = null;
+
+        for (var index = 0; index < state.spaces.length; index++) {
+          var s = state.spaces[index];
+
+          if (Math.abs(card.x - s.x) < (CARD_WIDTH / 1.5)
+            && Math.abs(card.y - s.y) < (CARD_HEIGHT / 1.5)
+          ) {
+            card.x = s.x;
+            card.y = s.y;
+            didMatch = true;
+            state.holdingCard = null;
+            break;
+          }
+        }
+      }
+
+      if (didMatch) {
+        context.cards.clearRect(0, 0,
+          canvases.cards.width,
+          canvases.cards.height
+        );
+        context.drag.clearRect(0, 0,
+          canvases.cards.width,
+          canvases.cards.height
+        );
+        drawCards();
+       
+      }
+    };
+
+    canvases.drag.onmousemove = function(e) {
+      if (state.cursorOffset && state.holdingCard != null) {
+        var card = state.holdingCard;
+       
+
+        card.x = e.clientX - state.cursorOffset.x;
+        card.y = e.clientY - state.cursorOffset.y;
+
+        context.drag.clearRect(0, 0,
+          canvases.drag.width,
+          canvases.drag.height,
+        );
+
+        drawCard(card, context.drag);
+        
+      }
+    };
+
+    window.onload = function() {
+      var cards = [];
+      const image = new Image();
+      for (var index = 0; index < 1; index++) {
+        image.src = "image/Actividad3Input/email.png";
+        cards.push({
+          x: 10,
+          y: 50,
+          image: image
+        });
+      
+      }
+      for (var index = 0; index < 1; index++) {
+        const image2 = new Image();
+        image2.src = "image/Actividad3Input/search.png"
+        cards.push({
+          x: 650,
+          y: 50,
+          image: image2
+        }); }
+      for (var index = 0; index < 1; index++) {
+        const image2 = new Image();
+        image2.src = "image/Actividad3Input/url.png"
+        cards.push({
+          x: 330,
+          y: 50,
+          image: image2
+        }); }
+        for (var index = 0; index < 1; index++) {
+        const image2 = new Image();
+        image2.src = "image/Actividad3Input/color.png"
+        cards.push({
+          x: 10,
+          y: 200,
+          image: image2
+        }); }
+        for (var index = 0; index < 1; index++) {
+        const image2 = new Image();
+        image2.src = "image/Actividad3Input/submint.png"
+        cards.push({
+          x: 330,
+          y: 200,
+          image: image2
+        }); }
+        for (var index = 0; index < 1; index++) {
+        const image2 = new Image();
+        image2.src = "image/Actividad3Input/text.png"
+        cards.push({
+          x: 650,
+          y: 200,
+          image: image2
+        }); }
+      
+      state.cards = cards;
+      
+
+      window.onresize();
+
+      drawSpaces();
+      drawCards();
+      
+    }
+  </script>
+</body>
+</html>
